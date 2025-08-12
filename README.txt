@@ -1,0 +1,3 @@
+REQUISITOS
+* Pyhton 3.10+
+* MySQL (XAMPP)
