@@ -17,10 +17,11 @@
         <tbody>
             {% for course in courses %}
             <tr>
+                {{ course }}
                 <td>{{ course.name }}</td>
                 <td>{{ course.level }}</td>
-                <td>{{ course.current_enrollments }}</td>
-                <td>{{ course.available_spots }}</td>
+                <td>{{ course.Current_Enrollments }}</td>
+                <td>{{ course.Available_Spots }}</td>
             </tr>
             {% else %}
             <tr><td colspan="4">No Course with available spots.</td></tr>
