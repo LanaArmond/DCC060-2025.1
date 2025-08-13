@@ -17,9 +17,12 @@
 
                 {% if current_user.is_authenticated and (current_user.admin is not none or (current_user.worker is not none and current_user.worker.secretary is not none)) %}
                     <li><a href="{{ url_for('users.list_users') }}">Users</a></li>
+                    <li><a href="{{ url_for('queries.students_never_participated') }}">Students Without Presentations</a></li>
                 {% endif %}
                 <li><a href="{{ url_for('presentations.list_presentations') }}">Presentations</a></li>
                 <li><a href="{{ url_for('queries.available_spots') }}">Courses with available spots</a></li>
+                <li><a href="{{ url_for('views.classes_schedule') }}">Classes Schedule</a></li>
+                <li><a href="{{ url_for('queries.querymaker') }}">Query Maker</a></li>
                 <li><a href="{{ url_for('logout_route') }}">Logout</a></li>
             </ul>
         </nav>

@@ -8,10 +8,10 @@
     <table class="dashboard-table">
         <thead>
             <tr>
-                <th>Curso</th>
-                <th>Nível</th>
-                <th>Matrículas Atuais</th>
-                <th>Vagas Disponíveis</th>
+                <th>Curse</th>
+                <th>Level</th>
+                <th>Enrollments</th>
+                <th>Available Spots</th>
             </tr>
         </thead>
         <tbody>
@@ -23,7 +23,7 @@
                 <td>{{ course.available_spots }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="4">Nenhum curso com vagas disponíveis.</td></tr>
+            <tr><td colspan="4">No Course with available spots.</td></tr>
             {% endfor %}
         </tbody>
     </table>

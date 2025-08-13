@@ -156,7 +156,6 @@ def seed_classrooms(deps):
 def seed_courses(professors):
     instrument_options = ["Violin", "Piano", "Flute", "Cello", "Harp", "Clarinet"]
 
-    # Level-specific course name templates
     level_course_names = {
         0: [  # Básico
             "{} Fundamentals",
@@ -191,11 +190,21 @@ def seed_courses(professors):
     }
 
     courses = []
+    used_names = set()
+
     for prof in professors:
         level = random.randint(0, 5)
         instrument = random.choice(instrument_options)
-        name_template = random.choice(level_course_names[level])
-        name = name_template.format(instrument)
+        base_name = random.choice(level_course_names[level]).format(instrument)
+
+        # Make sure name is unique, add suffix if needed
+        name = base_name
+        counter = 1
+        while name in used_names:
+            counter += 1
+            name = f"{base_name} {counter}"
+
+        used_names.add(name)
 
         course = Course(
             name=name,
@@ -209,6 +218,7 @@ def seed_courses(professors):
 
     db.session.flush()
     return courses
+
 
 
 def seed_classes(classrooms, courses):

@@ -5,27 +5,23 @@ from sqlalchemy.orm import joinedload
 
 
 def validate_presentation_data(title, date, level, guest_number, amphitheater_id, conductor_id, student_ids):
-    # 1. Check time constraints (only weekends between 14h and 22h)
     if date.weekday() not in (5, 6):  # 5 = Saturday, 6 = Sunday
         return None, "Presentations can only be scheduled on weekends."
     if not (time(14, 0) <= date.time() <= time(22, 0)):
         return None, "Presentation time must be between 14:00 and 22:00."
 
-    # 2. Amphitheater guest capacity
     amphitheater = Amphitheater.query.get(amphitheater_id)
     if not amphitheater:
         return None, "Amphitheater not found."
     if amphitheater.guest_capacity < guest_number:
         return None, "Amphitheater cannot hold the specified guest number."
 
-    # 3. Conductor level requirement
     conductor = Conductor.query.get(conductor_id)
     if not conductor:
         return None, "Conductor not found."
     if conductor.level < level:
         return None, "Conductor level is too low for this presentation."
 
-    # 4. Student level requirement
     students = Student.query.filter(Student.id.in_(student_ids)).all()
     if len(students) != len(student_ids):
         return None, "Some students not found."

@@ -18,6 +18,7 @@ from routes.main_routes import *
 from routes.users_routes import users_bp
 from routes.presentation_routes import presentations_bp
 from routes.queries_routes import queries_bp
+from routes.views_routes import views_bp
 
 if 'users' not in app.blueprints:
     app.register_blueprint(users_bp)
@@ -27,6 +28,9 @@ if 'presentations' not in app.blueprints:
     
 if 'queries' not in app.blueprints:
     app.register_blueprint(queries_bp)
+    
+if 'views' not in app.blueprints:
+    app.register_blueprint(views_bp)
     
 from controllers.auth_controller import login_manager
 

@@ -3,7 +3,10 @@
 {% block content %}
 <h2>Presentations</h2>
 
-<a href="{{ url_for('presentations.create_presentation_route') }}" class="btn btn-primary">Create New Presentation</a>
+
+{% if current_user.is_authenticated and (current_user.admin is not none or (current_user.worker is not none and current_user.worker.secretary is not none)) %}
+   <a href="{{ url_for('presentations.create_presentation_route') }}" class="btn btn-primary">Create New Presentation</a>
+{% endif %}
 
 <div class="table-container">
     <table class="dashboard-table">
@@ -17,7 +20,9 @@
                 <th>Amphitheater</th>
                 <th>Conductor</th>
                 <th>Students</th>
-                <th>Actions</th>
+                {% if current_user.is_authenticated and (current_user.admin is not none or (current_user.worker is not none and current_user.worker.secretary is not none)) %}
+                    <th>Actions</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -37,12 +42,14 @@
                         Nenhum Estudante Registrado
                     {% endif %}
                 </td>
-                <td>
-                    <a href="{{ url_for('presentations.edit_presentation_route', presentation_id=p.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form action="{{ url_for('presentations.delete_presentation_route', presentation_id=p.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this presentation?');">
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                    </form>
-                </td>
+                {% if current_user.is_authenticated and (current_user.admin is not none or (current_user.worker is not none and current_user.worker.secretary is not none)) %}
+                    <td>
+                        <a href="{{ url_for('presentations.edit_presentation_route', presentation_id=p.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ url_for('presentations.delete_presentation_route', presentation_id=p.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this presentation?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                {% endif %}
             </tr>
             {% else %}
             <tr>

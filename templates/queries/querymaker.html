@@ -1,0 +1,88 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+<h2>Query Maker</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flashes">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form method="POST" class="user-form">
+    <label for="predefined_query">Select a predefined query:</label>
+    <select id="predefined_query" name="predefined_query">
+        <option value="">-- Select a query --</option>
+        {% for title, sql in queries %}
+        <option value="{{ sql|e }}">{{ title }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="sql_query">Enter SQL SELECT query:</label>
+    <textarea name="sql_query" id="sql_query" rows="5" style="width: 100%;" required>{{ query }}</textarea>
+    <button type="submit" class="btn btn-primary mt-2">Run Query</button>
+</form>
+
+{% if results %}
+    <div class="table-container">
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    {% for key in results[0].keys() %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in results %}
+                <tr>
+                    {% for val in row.values() %}
+                        <td>{{ val }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% elif query and not results %}
+    <p>No results found.</p>
+{% endif %}
+
+{% if explain_plan %}
+<h3>Query Plan</h3>
+<div class="table-container">
+    <table class="dashboard-table">
+        <thead>
+            <tr>
+                {% for key in explain_plan[0].keys() %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in explain_plan %}
+            <tr>
+                {% for val in row.values() %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<script>
+    document.getElementById('predefined_query').addEventListener('change', function() {
+        var selectedSQL = this.value;
+        document.getElementById('sql_query').value = selectedSQL;
+    });
+</script>
+
+{% endblock %}

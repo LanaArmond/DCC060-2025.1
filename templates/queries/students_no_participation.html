@@ -1,0 +1,26 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+<h2>Students Without Presentations</h2>
+
+<div class="table-container">
+    <table class="dashboard-table">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.aluno }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="1">No students found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
