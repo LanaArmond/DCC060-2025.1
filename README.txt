@@ -50,11 +50,6 @@ O arquivo `.env` é **obrigatório** para o funcionamento do projeto. Todas as c
    - `SECRET_KEY`: Uma chave secreta para a aplicação Flask.  
    - `DATABASE_URL`: URL de conexão com o banco de dados no formato:  
 
-    DATABASE_URL=mysql+mysqlconnector://root:@localhost/test
-
-    (Substitua `root`, `localhost` e `test` conforme sua configuração do MySQL.)
-
-
 ---
 
 **Observação**: Certifique-se de que o MySQL está rodando localmente antes de executar os scripts.  
