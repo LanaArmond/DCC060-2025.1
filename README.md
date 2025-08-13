@@ -53,4 +53,3 @@ O arquivo `.env` é **obrigatório** para o funcionamento do projeto. Todas as c
 ---
 
 **Observação**: Certifique-se de que o MySQL está rodando localmente antes de executar os scripts.  
-```
