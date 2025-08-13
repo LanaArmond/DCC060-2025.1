@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Music School Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Music School</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="{{ url_for('users.profile') }}">Profile</a></li>
+
+                {% if current_user.is_authenticated and (current_user.admin is not none or (current_user.worker is not none and current_user.worker.secretary is not none)) %}
+                    <li><a href="{{ url_for('users.list_users') }}">Users</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('presentations.list_presentations') }}">Presentations</a></li>
+                <li><a href="{{ url_for('queries.available_spots') }}">Courses with available spots</a></li>
+                <li><a href="{{ url_for('logout_route') }}">Logout</a></li>
+            </ul>
+        </nav>
+
+        <div class="main-content">
+            <header>
+                <button id="toggle-sidebar" aria-label="Toggle sidebar">&#9776;</button>
+            </header>
+            <section class="content">
+                {% block content %}
+                {% endblock %}
+            </section>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

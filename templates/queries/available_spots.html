@@ -1,0 +1,32 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+<h2>Courses with available spots</h2>
+
+
+<div class="table-container">
+    <table class="dashboard-table">
+        <thead>
+            <tr>
+                <th>Curso</th>
+                <th>Nível</th>
+                <th>Matrículas Atuais</th>
+                <th>Vagas Disponíveis</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.name }}</td>
+                <td>{{ course.level }}</td>
+                <td>{{ course.current_enrollments }}</td>
+                <td>{{ course.available_spots }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">Nenhum curso com vagas disponíveis.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

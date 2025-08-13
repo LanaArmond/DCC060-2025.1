@@ -1,32 +1,38 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
+import os
+from flask import Flask
+from dotenv import load_dotenv
 from models import db
 
+load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY")
 
-# --- Config ---
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost/test'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db.init_app(app)
 
 
 
-def show_tables():
-    with db.engine.connect() as conn:
-        result = conn.execute(text("SHOW TABLES"))
-        tables = [row[0] for row in result]
-    print("Tables in the database:")
-    for table in tables:
-        print(f" - {table}")
+from routes.main_routes import *
+from routes.users_routes import users_bp
+from routes.presentation_routes import presentations_bp
+from routes.queries_routes import queries_bp
 
+if 'users' not in app.blueprints:
+    app.register_blueprint(users_bp)
+    
+if 'presentations' not in app.blueprints:
+    app.register_blueprint(presentations_bp)
+    
+if 'queries' not in app.blueprints:
+    app.register_blueprint(queries_bp)
+    
+from controllers.auth_controller import login_manager
+
+login_manager.init_app(app)
+login_manager.login_view = 'login_get'   
+    
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        show_tables()  # <-- This will print your tables to the console
-        # Optionally create tables if needed
-        # db.create_all()
     app.run(debug=True)

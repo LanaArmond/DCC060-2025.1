@@ -1,0 +1,43 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+<h2>Users</h2>
+
+<a href="{{ url_for('users.create_user_route') }}" class="btn btn-primary">Create New User</a>
+
+<div class="table-container">
+    <table class="dashboard-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                {% if current_user.is_authenticated and (current_user.admin is not none or (current_user.worker is not none and current_user.worker.secretary is not none)) %}
+                    <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                {% if current_user.is_authenticated and (current_user.admin is not none or (current_user.worker is not none and current_user.worker.secretary is not none)) %}
+                    <td>
+                        <a href="{{ url_for('users.edit_user_route', user_id=user.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ url_for('users.delete_user_route', user_id=user.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this user?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

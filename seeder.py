@@ -1,6 +1,6 @@
 # seeder.py
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from faker import Faker
 from main import app, db 
 from models import User, Admin, Worker, Student, Maintenancer, Professor, Secretary, Conductor, \
@@ -12,26 +12,13 @@ from views import create_views
 
 fake = Faker()
 
-def seed_users(n=10):
-    users = []
-    for _ in range(n):
-        user = User(
-            name=fake.name(),
-            email=fake.unique.email(),
-            password=fake.password()
-        )
-        db.session.add(user)
-        users.append(user)
-    db.session.flush()
-    return users
-
 def seed_users(count=30):
     users = []
     for _ in range(count):
         user = User(
             name=fake.name(),
             email=fake.unique.email(),
-            password=fake.password()
+            password="123456"
         )
         users.append(user)
         db.session.add(user)
@@ -67,7 +54,7 @@ def seed_user_specializations(users):
             # Last third become students
             age = random.randint(10, 85)
             phone = fake.phone_number()
-            student = Student(user_id=user.id, age=age, phone_number=phone)
+            student = Student(user_id=user.id, age=age, phone_number=phone, level=random.randint(0, 5))
             db.session.add(student)
             students.append(student)
 
@@ -129,8 +116,14 @@ def seed_conductors(professors):
 
 def seed_dependencies(n=5):
     deps = []
+    suffixes = ['Hall', 'Center', 'Theater', 'Auditorium', 'Stage', 'Venue']
     for _ in range(n):
-        dep = Dependency(name=fake.unique.word())
+        # Generate a location or building-related word from faker
+        place = fake.city()  # or fake.street_name(), fake.word(), fake.last_name() etc.
+        suffix = random.choice(suffixes)
+        # Combine for a coherent amphitheater dependency name
+        name = f"{place} {suffix}"
+        dep = Dependency(name=name)
         db.session.add(dep)
         deps.append(dep)
     db.session.flush()
@@ -138,7 +131,7 @@ def seed_dependencies(n=5):
 
 def seed_amphitheaters(deps):
     amphitheaters = []
-    for dep in random.sample(deps, k=min(2, len(deps))):
+    for dep in random.sample(deps, k=min(4, len(deps))):
         amph = Amphitheater(
             dependency_id=dep.id, 
             guest_capacity=random.randint(50, 300)
@@ -161,19 +154,62 @@ def seed_classrooms(deps):
     return classrooms
 
 def seed_courses(professors):
+    instrument_options = ["Violin", "Piano", "Flute", "Cello", "Harp", "Clarinet"]
+
+    # Level-specific course name templates
+    level_course_names = {
+        0: [  # Básico
+            "{} Fundamentals",
+            "Basics of {}",
+            "Intro to {}"
+        ],
+        1: [  # Iniciante
+            "Beginner's Guide to {}",
+            "{} for Starters",
+            "Getting Started with {}"
+        ],
+        2: [  # Aprendiz
+            "{} Apprenticeship",
+            "Apprentice {} Techniques",
+            "Developing {} Skills"
+        ],
+        3: [  # Intermediário
+            "Intermediate {} Studies",
+            "Building {} Techniques",
+            "{} Ensemble Playing"
+        ],
+        4: [  # Avançado
+            "Advanced {} Techniques",
+            "Mastering {}",
+            "Advanced {} Workshop"
+        ],
+        5: [  # Virtuoso
+            "Virtuoso {} Masterclass",
+            "Concert-Level {} Performance",
+            "Virtuoso {} Techniques"
+        ]
+    }
+
     courses = []
     for prof in professors:
+        level = random.randint(0, 5)
+        instrument = random.choice(instrument_options)
+        name_template = random.choice(level_course_names[level])
+        name = name_template.format(instrument)
+
         course = Course(
-            name=fake.word(),
-            level=random.randint(0, 5),
-            instrument_focus=fake.word(),
+            name=name,
+            level=level,
+            instrument_focus=instrument,
             student_limit=random.randint(5, 30),
             professor_id=prof.id
         )
         db.session.add(course)
         courses.append(course)
+
     db.session.flush()
     return courses
+
 
 def seed_classes(classrooms, courses):
     classes = []
@@ -239,21 +275,98 @@ def seed_maintenance(instruments, maintenancers):
     
     db.session.flush()
 
-def seed_presentations(amphitheaters, conductors):
+def seed_presentations(amphitheaters):
     presentations = []
+
     for _ in range(3):
-        pres = Presentation(
-            title=fake.sentence(),
-            date=fake.date_time_between(start_date='-30d', end_date='+30d'),
-            level=random.randint(0, 5),
-            guest_number=random.randint(0, 200),
-            amphitheater_id=random.choice(amphitheaters).id,
-            conductor_id=random.choice(conductors).id
+        amphitheater = random.choice(amphitheaters)
+
+        guest_number = random.randint(0, amphitheater.guest_capacity)
+
+        level = random.randint(0, 5)
+
+        days_ahead = random.randint(-30, 30)
+        base_date = datetime.now() + timedelta(days=days_ahead)
+        base_date += timedelta(days=(5 - base_date.weekday()) % 7)
+        hour = random.randint(14, 22)
+        date = datetime.combine(base_date.date(), time(hour=hour, minute=0))
+
+        conductor_user = User(
+            name=fake.name(),
+            email=fake.unique.email(),
+            password="123456"
         )
+        db.session.add(conductor_user)
+        db.session.flush()
+        
+        salary = round(random.uniform(1000, 5000), 2)
+        worker = Worker(user_id=conductor_user.id, salary=salary)
+        db.session.add(worker)
+        db.session.flush()
+    
+        professor = Professor(
+            worker_id=worker.id,
+            academic_bg=fake.text(max_nb_chars=100)
+        )
+        db.session.add(professor)
+        db.session.flush()
+
+        conductor = Conductor(
+            professor_id=professor.id,
+            level=random.randint(level, 5)
+        )
+        db.session.add(conductor)
+        db.session.flush()
+
+        students = []
+        for _ in range(random.randint(5, 15)):
+            student_user = User(
+                name=fake.name(),
+                email=fake.unique.email(),
+                password="123456"
+            )
+            db.session.add(student_user)
+            db.session.flush()
+
+            student = Student(
+                user_id=student_user.id,
+                age=random.randint(10, 85),
+                phone_number=fake.phone_number(),
+                level=random.randint(level, 5)
+            )
+            db.session.add(student)
+            students.append(student)
+
+        music_titles = [
+            "Symphony Under the Stars",
+            "Jazz & Moonlight",
+            "Echoes of the Violin",
+            "Harmony of the Winds",
+            "Piano Nights",
+            "The Choral Journey",
+            "Strings & Serenades",
+            "Rhythms of the World",
+            "Opera in the Park",
+            "Ballads and Beyond"
+        ]
+        title = random.choice(music_titles)
+
+        pres = Presentation(
+            title=title,
+            date=date,
+            level=level,
+            guest_number=guest_number,
+            amphitheater_id=amphitheater.id,
+            conductor_id=conductor.id
+        )
+        pres.students = students
+
         db.session.add(pres)
         presentations.append(pres)
+
     db.session.flush()
     return presentations
+
 
 def seed_participations(students, presentations):
     for pres in presentations:
@@ -290,7 +403,7 @@ def seed_all():
         run_and_print(seed_enrollments, students, courses)
         run_and_print(seed_attendance, students, classes)
         run_and_print(seed_maintenance, instruments, maintenancers)
-        presentations = run_and_print(seed_presentations, amphitheaters, conductors)
+        presentations = run_and_print(seed_presentations, amphitheaters)
         run_and_print(seed_participations, students, presentations)
         run_and_print(seed_rehearsals, amphitheaters, presentations)
 

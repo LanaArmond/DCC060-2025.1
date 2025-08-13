@@ -310,15 +310,16 @@ def run_integrity_tests():
 
             # 2. Insert valid student - should pass
             result = conn.execute(text(f"""
-                INSERT INTO student (user_id, age, phone_number)
-                VALUES ({user_id}, 20, '123-456-7890')
+                INSERT INTO student (user_id, age, phone_number, level)
+                VALUES ({user_id}, 20, '123-456-7890', 3)
             """))
             student_id = result.lastrowid
 
             # 3. Insert student with non-existing user_id - should fail FK
             try:
                 conn.execute(text("""
-                    INSERT INTO student (user_id, age) VALUES (9999999, 25)
+                    INSERT INTO student (user_id, age, level)
+                    VALUES (9999999, 25, 3)
                 """))
                 raise AssertionError("Allowed insert with non-existing user_id")
             except Exception:
@@ -327,45 +328,74 @@ def run_integrity_tests():
             # 4. Insert student with duplicate user_id - should fail UNIQUE
             try:
                 conn.execute(text(f"""
-                    INSERT INTO student (user_id, age) VALUES ({user_id}, 22)
+                    INSERT INTO student (user_id, age, level)
+                    VALUES ({user_id}, 22, 4)
                 """))
                 raise AssertionError("Allowed duplicate user_id insert")
             except Exception:
                 pass  # Expected unique violation
 
-            # 5. Insert student with invalid age (less than 10) - should fail CHECK
+            # 5. Insert student with invalid age (< 10) - should fail CHECK
+            result = conn.execute(text("""
+                INSERT INTO user (name, email, password)
+                VALUES ('StudentUser2', 'studentuser2@example.com', 'studentpass2')
+            """))
+            user2_id = result.lastrowid
             try:
-                # Make a new user for this test
-                result = conn.execute(text("""
-                    INSERT INTO user (name, email, password)
-                    VALUES ('StudentUser2', 'studentuser2@example.com', 'studentpass2')
-                """))
-                user2_id = result.lastrowid
-
                 conn.execute(text(f"""
-                    INSERT INTO student (user_id, age) VALUES ({user2_id}, 9)
+                    INSERT INTO student (user_id, age, level)
+                    VALUES ({user2_id}, 9, 2)
                 """))
                 raise AssertionError("Allowed insert with age < 10")
             except Exception:
                 pass  # Expected CHECK violation
 
-            # 6. Insert student with invalid age (greater than 85) - should fail CHECK
+            # 6. Insert student with invalid age (> 85) - should fail CHECK
+            result = conn.execute(text("""
+                INSERT INTO user (name, email, password)
+                VALUES ('StudentUser3', 'studentuser3@example.com', 'studentpass3')
+            """))
+            user3_id = result.lastrowid
             try:
-                # Make a new user for this test
-                result = conn.execute(text("""
-                    INSERT INTO user (name, email, password)
-                    VALUES ('StudentUser3', 'studentuser3@example.com', 'studentpass3')
-                """))
-                user3_id = result.lastrowid
-
                 conn.execute(text(f"""
-                    INSERT INTO student (user_id, age) VALUES ({user3_id}, 90)
+                    INSERT INTO student (user_id, age, level)
+                    VALUES ({user3_id}, 90, 1)
                 """))
                 raise AssertionError("Allowed insert with age > 85")
             except Exception:
                 pass  # Expected CHECK violation
 
-            # 7. Update student to invalid age - should fail CHECK
+            # 7. Insert student with invalid level (< 0) - should fail CHECK
+            result = conn.execute(text("""
+                INSERT INTO user (name, email, password)
+                VALUES ('StudentUser4', 'studentuser4@example.com', 'studentpass4')
+            """))
+            user4_id = result.lastrowid
+            try:
+                conn.execute(text(f"""
+                    INSERT INTO student (user_id, age, level)
+                    VALUES ({user4_id}, 20, -1)
+                """))
+                raise AssertionError("Allowed insert with level < 0")
+            except Exception:
+                pass  # Expected CHECK violation
+
+            # 8. Insert student with invalid level (> 5) - should fail CHECK
+            result = conn.execute(text("""
+                INSERT INTO user (name, email, password)
+                VALUES ('StudentUser5', 'studentuser5@example.com', 'studentpass5')
+            """))
+            user5_id = result.lastrowid
+            try:
+                conn.execute(text(f"""
+                    INSERT INTO student (user_id, age, level)
+                    VALUES ({user5_id}, 20, 6)
+                """))
+                raise AssertionError("Allowed insert with level > 5")
+            except Exception:
+                pass  # Expected CHECK violation
+
+            # 9. Update student to invalid age - should fail CHECK
             try:
                 conn.execute(text(f"""
                     UPDATE student SET age = 5 WHERE id = {student_id}
@@ -374,7 +404,16 @@ def run_integrity_tests():
             except Exception:
                 pass  # Expected CHECK violation
 
-            # 8. Test ON DELETE CASCADE (delete user deletes student)
+            # 10. Update student to invalid level - should fail CHECK
+            try:
+                conn.execute(text(f"""
+                    UPDATE student SET level = 10 WHERE id = {student_id}
+                """))
+                raise AssertionError("Allowed update to invalid level")
+            except Exception:
+                pass  # Expected CHECK violation
+
+            # 11. Test ON DELETE CASCADE (delete user deletes student)
             conn.execute(text(f"""
                 DELETE FROM user WHERE id = {user_id}
             """))
@@ -394,6 +433,7 @@ def run_integrity_tests():
             raise e
         finally:
             conn.close()
+
 
     def test_maintenancer_table_integrity():
         conn = db.engine.connect()
@@ -2164,7 +2204,7 @@ def run_integrity_tests():
         (test_rehearsal_table_integrity, "rehearsal table integrity"),
         (test_vw_agenda_aulas, "vw agenda aulas"),
         (test_vw_participacao_apresentacoes, "vw participacao apresentacoes"),
-        (test_vw_cursos_com_vagas, "test_vw_cursos_com_vagas")
+        (test_vw_cursos_com_vagas, "vw cursos com vagas")
     ]
 
     for test_func, test_name in tests:

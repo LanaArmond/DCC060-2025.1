@@ -1,0 +1,43 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+<h2>Create New Presentation</h2>
+
+<form method="POST" action="{{ url_for('presentations.create_presentation_route') }}" class="dashboard-form">
+    <label for="title">Title</label>
+    <input type="text" name="title" id="title" required />
+
+    <label for="date">Date & Time</label>
+    <input type="datetime-local" name="date" id="date" required />
+
+    <label for="level">Level (0-5)</label>
+    <input type="number" name="level" id="level" min="0" max="5" required />
+
+    <label for="guest_number">Guest Number</label>
+    <input type="number" name="guest_number" id="guest_number" min="0" required />
+
+    <label for="amphitheater_id">Amphitheater</label>
+    <select name="amphitheater_id" id="amphitheater_id" required>
+        {% for amph in amphitheaters %}
+            <option value="{{ amph.id }}">{{ amph.dependency.name }} (Capacity: {{ amph.guest_capacity }})</option>
+        {% endfor %}
+    </select>
+
+    <label for="conductor_id">Conductor</label>
+    <select name="conductor_id" id="conductor_id" required>
+        {% for cond in conductors %}
+            <option value="{{ cond.id }}">{{ cond.professor.worker.user.name }} (Level: {{ cond.level }})</option>
+        {% endfor %}
+    </select>
+
+    <label for="student_ids">Students</label>
+    <select name="student_ids" id="student_ids" multiple size="8">
+        {% for student in students %}
+            <option value="{{ student.id }}">{{ student.user.name }} (Level: {{ student.level }})</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a href="{{ url_for('presentations.list_presentations') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

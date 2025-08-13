@@ -1,0 +1,75 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #d0e2db, #f9faf9); /* closer to dashboard bg */
+    color: #4a4a4a; /* match dashboard text color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    width: 340px;
+    text-align: center;
+    box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.08); /* softer shadow like dashboard */
+}
+
+.login-container h2 {
+    margin-bottom: 1.5rem;
+    color: #3b4a48; /* match sidebar header color */
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 0.65rem 0.8rem;
+    margin: 0.6rem 0;
+    border: 1px solid #a4c6b8; /* pastel teal border like sidebar hover */
+    border-radius: 6px;
+    font-size: 1rem;
+    background: #f9faf9;
+    color: #4a4a4a;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-container input:focus {
+    outline: none;
+    border-color: #8bb29c; /* match btn hover color */
+    box-shadow: 0 0 6px rgba(139, 178, 156, 0.5);
+}
+
+.login-container button {
+    display: block;
+    width: 100%;
+    padding: 0.65rem;
+    margin-top: 1rem;
+    background: #a4c6b8; /* pastel teal primary */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer; 
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.login-container button:hover {
+    background: #8bb29c; /* match dashboard btn hover */
+}
+
+.error {
+    background: #d9534f; /* use dashboard's btn-danger red */
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+}
