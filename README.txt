@@ -1,8 +1,8 @@
-# REQUISITOS
+# Instruções para Configuração do Ambiente Python
+
+## REQUISITOS
 * Pyhton 3.10+
 * MySQL (XAMPP)
-
-# Instruções para Configuração do Ambiente Python
 
 ## Configuração do Ambiente Virtual e Instalação de Dependências
 
